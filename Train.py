@@ -23,8 +23,9 @@ labels = urls['label']
 X_train, x_test, Y_train, y_test = train_test_split(urls_without_labels, labels, test_size=0.30, random_state=100)
 
 '''
-#-----------------------Training the classifier------------------------------
-rf=RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
+
+#-----------------------Training the Random Forest classifier------------------------------
+classifier=RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
             max_depth=80, max_features='log2', max_leaf_nodes=None,
             min_impurity_decrease=0.0, min_impurity_split=None,
             min_samples_leaf=3, min_samples_split=10,
@@ -32,8 +33,8 @@ rf=RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
             oob_score=False, random_state=None, verbose=0,
             warm_start=False)
 
-rf.fit(X_train,Y_train)
-pred_label = rf.predict(x_test)
+classifier.fit(X_train,Y_train)
+pred_label = classifier.predict(x_test)
 
 #-----------------------Using GridSearchCV on RandomForest------------------------------
 param_grid = {
@@ -45,10 +46,10 @@ param_grid = {
 'n_estimators': [100, 200, 300, 1000]
 }
 
-rf = RandomForestClassifier()
+classifier= RandomForestClassifier()
 # Instantiate the grid search model
 
-grid_search = GridSearchCV(estimator = rf, param_grid = param_grid, 
+grid_search = GridSearchCV(estimator = classifier, param_grid = param_grid, 
 cv = 3, n_jobs = -1, verbose = 2)
 
 # Fit the grid search to the data
@@ -65,7 +66,7 @@ print (best_grid)
 
 '''
 
-#---------------------------Training the model-----------------------------
+#---------------------------Training the SVM model-----------------------------
 classifier=SVC(C=10, cache_size=200, class_weight=None, coef0=0.0,
     decision_function_shape='ovr', degree=3, gamma=1, kernel='rbf', max_iter=-1,
     probability=False, random_state=None, shrinking=True, tol=0.001,
@@ -74,6 +75,7 @@ classifier=SVC(C=10, cache_size=200, class_weight=None, coef0=0.0,
 classifier.fit(X_train,Y_train)
 
 pred_label = classifier.predict(x_test)
+
 
 #---------------------------GridSearchCV-----------------------------
 
@@ -101,6 +103,8 @@ print(classification_report(y_test, grid_predictions))
 '''
 
 
+
+'''
 #-----------------------Training the DecisionTree------------------------------
 
 classifier = DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=15,
@@ -110,16 +114,14 @@ classifier = DecisionTreeClassifier(class_weight=None, criterion='gini', max_dep
             min_weight_fraction_leaf=0.0, presort=False, random_state=None,
             splitter='best')
 classifier.fit(X_train,Y_train)
-pred_label = DTmodel.predict(x_test)
+pred_label = classifier.predict(x_test)
 
-'''
 
 #-----------------------Using GridSearchCV on DecisionTree------------------------------
 
 parameters={'min_samples_split' : range(10,500,20),'max_depth': range(1,20,2)}
-tree=DecisionTreeClassifier()
 
-grid_search = GridSearchCV(tree,parameters)
+grid_search = GridSearchCV(classifier,parameters)
 grid_search.fit(X_train,Y_train)
 alpha = grid_search.best_params_
 best_grid = grid_search.best_estimator_
@@ -137,10 +139,10 @@ reca=cm[1,1]/(cm[1,0]+cm[1,1])
 print("Precision: ",prec)
 print("Recall: ",reca)
 
-
+'''
 #-------------------------Saving the features to avoid retraining the model next time----------------------
-file= 'DecisionTree.pkl'
+file= 'svm.pkl'
 with open(file,'wb') as f:
     pickle.dump(classifier,f)
 f.close()
- 
+'''
