@@ -1,6 +1,7 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report,confusion_matrix,accuracy_score
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
@@ -22,8 +23,28 @@ urls_without_labels = urls.drop('label',axis=1)
 labels = urls['label']
 X_train, x_test, Y_train, y_test = train_test_split(urls_without_labels, labels, test_size=0.30, random_state=100)
 
+
 '''
 
+param_grid = {'classifier' : [LogisticRegression()],
+     'classifier__penalty' : ['l1', 'l2'],
+    'classifier__C' : np.logspace(-4, 4, 20),
+    'classifier__solver' : ['liblinear']},
+
+
+grid_search= GridSearchCV(LogisticRegression(),param_grid = param_grid, cv = 5, verbose=True, n_jobs=-1)
+
+# Fit the grid search to the data
+grid_search.fit(X_train, Y_train)
+alpha = grid_search.best_params_
+
+best_grid = grid_search.best_estimator_
+print (alpha)
+print (best_grid)
+'''
+
+
+'''
 #-----------------------Training the Random Forest classifier------------------------------
 classifier=RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
             max_depth=80, max_features='log2', max_leaf_nodes=None,
