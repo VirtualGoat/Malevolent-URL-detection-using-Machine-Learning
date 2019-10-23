@@ -1,5 +1,5 @@
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import confusion_matrix,accuracy_score
+from sklearn.metrics import classification_report,confusion_matrix,accuracy_score
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
@@ -23,7 +23,19 @@ labels = urls['label']
 X_train, x_test, Y_train, y_test = train_test_split(urls_without_labels, labels, test_size=0.30, random_state=100)
 
 '''
------------------------Using GridSearchCV on RandomForest------------------------------
+#-----------------------Training the classifier------------------------------
+rf=RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
+            max_depth=80, max_features='log2', max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=3, min_samples_split=10,
+            min_weight_fraction_leaf=0.0, n_estimators=200, n_jobs=None,
+            oob_score=False, random_state=None, verbose=0,
+            warm_start=False)
+
+rf.fit(X_train,Y_train)
+pred_label = rf.predict(x_test)
+
+#-----------------------Using GridSearchCV on RandomForest------------------------------
 param_grid = {
 'bootstrap': [True],
 'max_depth': [80, 90, 100, 110],
@@ -46,48 +58,64 @@ alpha = grid_search.best_params_
 best_grid = grid_search.best_estimator_
 print (alpha)
 print (best_grid)
------------------------Training the classifier------------------------------
-rf=RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
-            max_depth=80, max_features='log2', max_leaf_nodes=None,
-            min_impurity_decrease=0.0, min_impurity_split=None,
-            min_samples_leaf=3, min_samples_split=10,
-            min_weight_fraction_leaf=0.0, n_estimators=200, n_jobs=None,
-            oob_score=False, random_state=None, verbose=0,
-            warm_start=False)
 
-rf.fit(X_train,Y_train)
-pred_label = rf.predict(x_test)
+########################################################################################
 '''
 
-'''
-classifier=SVC(kernel='rbf',random_state=0)
 
+'''
+
+#---------------------------Training the model-----------------------------
+classifier=SVC(C=10, cache_size=200, class_weight=None, coef0=0.0,
+    decision_function_shape='ovr', degree=3, gamma=1, kernel='rbf', max_iter=-1,
+    probability=False, random_state=None, shrinking=True, tol=0.001,
+    verbose=False)
 
 classifier.fit(X_train,Y_train)
 
-y_pred = classifier.predict(x_test)
+pred_label = classifier.predict(x_test)
 
-cm=confusion_matrix(y_test,y_pred)
+#---------------------------GridSearchCV-----------------------------
 
-print(accuracy_score(y_test,y_pred))
+param_grid = {'C': [0.1, 1, 10, 100, 1000],  
+              'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 
+              'kernel': ['rbf']}  
+  
+grid = GridSearchCV(classifier, param_grid, refit = True, verbose = 3) 
+  
+# fitting the model for grid search 
+grid.fit(X_train, Y_train) 
+
+print(grid.best_params_) 
+  
+# print how our model looks after hyper-parameter tuning 
+print(grid.best_estimator_) 
+
+
+grid_predictions = grid.predict(x_test) 
+  
+# print classification report 
+print(classification_report(y_test, grid_predictions)) 
+
+################################################################################
 '''
 
-DTmodel = DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=15,
+
+#-----------------------Training the DecisionTree------------------------------
+
+classifier = DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=15,
             max_features=None, max_leaf_nodes=None,
             min_impurity_decrease=0.0, min_impurity_split=None,
             min_samples_leaf=1, min_samples_split=10,
             min_weight_fraction_leaf=0.0, presort=False, random_state=None,
             splitter='best')
-DTmodel.fit(X_train,Y_train)
+classifier.fit(X_train,Y_train)
 pred_label = DTmodel.predict(x_test)
 
-
-#cm = confusion_matrix(y_test,pred_label)
-#print(accuracy_score(y_test,pred_label))
-
-
-
 '''
+
+#-----------------------Using GridSearchCV on DecisionTree------------------------------
+
 parameters={'min_samples_split' : range(10,500,20),'max_depth': range(1,20,2)}
 tree=DecisionTreeClassifier()
 
@@ -97,14 +125,9 @@ alpha = grid_search.best_params_
 best_grid = grid_search.best_estimator_
 print (alpha)
 print (best_grid)
+###########################################################################
 '''
 
-
-
-
-
-'''
-'''
 
 cm = confusion_matrix(y_test,pred_label)
 print(accuracy_score(y_test,pred_label))
@@ -113,12 +136,11 @@ reca=cm[1,1]/(cm[1,0]+cm[1,1])
 
 print("Precision: ",prec)
 print("Recall: ",reca)
-'''
-file= 'random_forest.pkl'
+
+
+#-------------------------Saving the features to avoid retraining the model next time----------------------
+file= 'DecisionTree.pkl'
 with open(file,'wb') as f:
-    pickle.dump(rf,f)
+    pickle.dump(classifier,f)
 f.close()
  
-
-
-'''
