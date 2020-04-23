@@ -24,6 +24,15 @@ labels = urls['label']
 X_train, x_test, Y_train, y_test = train_test_split(urls_without_labels, labels, test_size=0.30, random_state=100)
 
 
+
+from xgboost import XGBClassifier
+classifier = XGBClassifier()
+classifier.fit(X_train, Y_train)
+
+# Predicting the Test set results
+pred_label = classifier.predict(x_test)
+
+
 '''
 
 param_grid = {'classifier' : [LogisticRegression()],
@@ -160,10 +169,11 @@ reca=cm[1,1]/(cm[1,0]+cm[1,1])
 print("Precision: ",prec)
 print("Recall: ",reca)
 
-'''
+
 #-------------------------Saving the features to avoid retraining the model next time----------------------
-file= 'svm.pkl'
-with open(file,'wb') as f:
-    pickle.dump(classifier,f)
-f.close()
-'''
+# =============================================================================
+# file= 'xbg.pkl'
+# with open(file,'wb') as f:
+#     pickle.dump(classifier,f)
+# f.close()
+# =============================================================================

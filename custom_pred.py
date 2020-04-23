@@ -7,15 +7,18 @@ import pickle
 
 
 
-'''
-You can paste your own URLs to predict or you can use the dataset data.csv
+# =============================================================================
+# You can paste your own URLs to predict or you can use the dataset data.csv
+# =============================================================================
 
-arr=np.array(['https://github.com/VirtualGoat/Malevolent-URL-detection-using-Machine-Learning'])
+arr=np.array(['https://www.google.com/'])
 
-x=arr['url'][:50]
-'''
-arr=pd.read_csv('dataset/his.csv')
-arr=arr['url']
+# =============================================================================
+# x=arr['url'][:50]
+# =============================================================================
+
+#arr=pd.read_csv('dataset/his.csv')
+#arr=arr['url']
 protocol = []
 domain = []
 path = []
@@ -69,7 +72,7 @@ finaldata=pd.DataFrame(d)
 
 abc=finaldata.iloc[:,:].values
 
-file= 'saved_features/saved_features.pkl'
+file= 'RandomForest.pkl'
 with open(file,'rb') as f:
     classifier=pickle.load(f)
 f.close()
